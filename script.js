@@ -1,24 +1,25 @@
-//             A    B   C    D   E
+//             A    B   C    D   E  F
 var pesos = [
-              [-01, 05, 10, 15, 25], // A
-              [ 05,-01, 13, 11, 18], // B
-              [ 10, 13,-01, 06, 14], // C
-              [ 15, 11, 06,-01, 20], // D
-              [ 25, 18, 14, 20,-01]  // E
+              [-01, 05, 10, 15, 25, 10], // A
+              [ 05,-01, 13, 11, 18, 12], // B
+              [ 10, 13,-01, 06, 14, 02], // C
+              [ 15, 11, 06,-01, 20, 23], // D
+              [ 25, 18, 14, 20,-01, 08],  // E
+              [ 10, 12, 02, 23, 08,-01]  // F
             ]
 
-var cidades = ['A','B','C','D','E']
+var cidades = ['A','B','C','D','E','F']
 
 var tamanho_populacao = cidades.length * 2 - 1
 var fator_de_mutacao = 0.05
 var fatorCrossover = 0.9
 
-
 $(document).ready(function(){
   // var pop = new Populacao()
   // pop.makeATable()
   var amb = new Ambiente()
-  amb.evoluirPopulacao(1)
+  amb.evoluirPopulacao(500)
+
 })
 
 class Ambiente {
@@ -27,25 +28,44 @@ class Ambiente {
   }
 
   evoluirPopulacao(iteracoes){
+    this.pop.makeATable('#ind')
+    // console.log("aa")
     for (var i = 0; i < iteracoes; i++) {
       var melhoresIndTorneio = []
       var k = 0
       for (var j = 0; j < tamanho_populacao / 2 - 1; j++) {
         melhoresIndTorneio[j] = this.findBestIndividuo(this.pop.vetor_individuos[k], this.pop.vetor_individuos[k + 1])
+        // console.log("Melhor " + j + " " + melhoresIndTorneio[j].custo)
         k = k + 2
+        // console.log(j + " Torneio")
       }
       this.pop.setIndividuo(0, this.pop.vetor_individuos[tamanho_populacao - 1]);
 
       // Considerar depois que crossover pode não ocorrer
       for (var j = 0; j < melhoresIndTorneio.length; j = j + 2) {
-        this.crossover(melhoresIndTorneio[j], melhoresIndTorneio[j + 1])
+        console.log(j)
+        var crossChance = Math.random()
+        if(j === melhoresIndTorneio.length - 1){
+          if(melhoresIndTorneio.length % 2 === 1){
+            this.crossover(melhoresIndTorneio[j], melhoresIndTorneio[j - 1], j)
+            break
+          }
+        }
+        if(crossChance < fatorCrossover){
+          this.crossover(melhoresIndTorneio[j], melhoresIndTorneio[j + 1], j)
+        }else{
+          this.pop.setIndividuo(j + 1, melhoresIndTorneio[j])
+          this.pop.setIndividuo(j + 2, melhoresIndTorneio[j + 1])
+        }
+
       }
 
       for (var j = 0; j < tamanho_populacao; j++) {
-        this.pop.vetor_individuos[i].mutate()
+        this.pop.vetor_individuos[j].mutate()
       }
     }
 
+    this.pop.makeATable('#ind2')
   }
 
   findBestIndividuo (ind1, ind2){
@@ -57,7 +77,7 @@ class Ambiente {
 
 
 //http://www.theprojectspot.com/tutorial-post/applying-a-genetic-algorithm-to-the-travelling-salesman-problem/5
-  crossover (i1, i2){
+  crossover (i1, i2, posicaoPop){
     var vet1 = i1.vetor_caminho
     var vet2 = i2.vetor_caminho
     var novoInd1 = new Individuo()
@@ -66,6 +86,8 @@ class Ambiente {
     novoInd2.resetCaminho()
     this.gerarNovoCaminho(novoInd1, vet1, vet2)
     this.gerarNovoCaminho(novoInd2, vet2, vet1)
+    this.pop.setIndividuo(posicaoPop + 1, novoInd1)
+    this.pop.setIndividuo(posicaoPop + 2, novoInd2)
   }
 
   gerarNovoCaminho(novoInd, caminhoPai1, caminhoPai2){
@@ -74,16 +96,19 @@ class Ambiente {
     }
     for (var i = 0; i < caminhoPai2.length; i++) {
       if(novoInd.caminho[i] === -1){
-        if(!this.validarNovaParteCaminho(novoInd.caminho, caminhoPai2[i])){
-          novoInd.setParteCaminho(i, caminhoPai2[i])
+        for (var j = 0; j < caminhoPai2.length; j++) {
+          if(!this.validarNovaParteCaminho(novoInd.caminho, caminhoPai2[j])){
+            novoInd.setParteCaminho(i, caminhoPai2[j])
+          }
         }
+
       }
     }
   }
 
   validarNovaParteCaminho(caminhoNovo, novaParteCaminho){
     for (var i = 0; i < caminhoNovo.length; i++) {
-      if(caminhoNovo[i] == novaParteCaminho){
+      if(caminhoNovo[i] === novaParteCaminho){
         return true
       }
     }
@@ -107,10 +132,14 @@ class Populacao {
     this.individuos[posicao] = Individuo
   }
 
-  makeATable() {
+  makeATable(id) {
+    this.individuos.sort(function(a, b){return a.custo-b.custo})
+    var sum = 0
     for(var i = 0 ; i < tamanho_populacao ; i++) {
-      $('#ind').append('<tr><th scope="row">'+i+'</th><td>'+this.individuos[i].percurso+'</td><td>'+this.individuos[i].custo+'</td></tr>')
+      sum += this.individuos[i].custo
+      $(id).append('<tr><th scope="row">'+i+'</th><td>'+this.individuos[i].percurso+'</td><td>'+this.individuos[i].custo+'</td></tr>')
     }
+    $(id).append('<tr><th scope="row" colspan="2">TOTAL</th><td>'+sum+'</td></tr>')
   }
 }
 class Individuo {
