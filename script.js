@@ -18,7 +18,7 @@ $(document).ready(function(){
   // var pop = new Populacao()
   // pop.makeATable()
   var amb = new Ambiente()
-  amb.treinarPopulacao(1)
+  amb.evoluirPopulacao(1)
 })
 
 class Ambiente {
