@@ -9,27 +9,86 @@ var pesos = [
 
 var cidades = ['A','B','C','D','E']
 
-var tamanho_populacao = 16
-var fator_de_mutacao = 0.5
-
+var tamanho_populacao = cidades.length * 2 - 1
+var fator_de_mutacao = 0.05
+var fatorCrossover = 0.9
 
 
 $(document).ready(function(){
-  var pop = new Populacao()
-  pop.makeATable()
+  // var pop = new Populacao()
+  // pop.makeATable()
+  var amb = new Ambiente()
+  amb.treinarPopulacao(1)
 })
 
 class Ambiente {
   constructor() {
     this.pop = new Populacao()
-    this.pop.makeATable()
   }
 
+  evoluirPopulacao(iteracoes){
+    for (var i = 0; i < iteracoes; i++) {
+      var melhoresIndTorneio = []
+      var k = 0
+      for (var j = 0; j < tamanho_populacao / 2 - 1; j++) {
+        melhoresIndTorneio[j] = this.findBestIndividuo(this.pop.vetor_individuos[k], this.pop.vetor_individuos[k + 1])
+        k = k + 2
+      }
+      this.pop.setIndividuo(0, this.pop.vetor_individuos[tamanho_populacao - 1]);
+
+      // Considerar depois que crossover pode não ocorrer
+      for (var j = 0; j < melhoresIndTorneio.length; j = j + 2) {
+        this.crossover(melhoresIndTorneio[j], melhoresIndTorneio[j + 1])
+      }
+
+      for (var j = 0; j < tamanho_populacao; j++) {
+        this.pop.vetor_individuos[i].mutate()
+      }
+    }
+
+  }
+
+  findBestIndividuo (ind1, ind2){
+    if(ind1.custo < ind2.custo){
+      return ind1
+    }
+    return ind2
+  }
+
+
+//http://www.theprojectspot.com/tutorial-post/applying-a-genetic-algorithm-to-the-travelling-salesman-problem/5
   crossover (i1, i2){
-    var vet1 = i1.vetor_individuos
-    var vet2 = i2.vetor_individuos
+    var vet1 = i1.vetor_caminho
+    var vet2 = i2.vetor_caminho
+    var novoInd1 = new Individuo()
+    var novoInd2 = new Individuo()
+    novoInd1.resetCaminho()
+    novoInd2.resetCaminho()
+    this.gerarNovoCaminho(novoInd1, vet1, vet2)
+    this.gerarNovoCaminho(novoInd2, vet2, vet1)
   }
 
+  gerarNovoCaminho(novoInd, caminhoPai1, caminhoPai2){
+    for (var i = 0; i < caminhoPai1.length / 2; i++) {
+      novoInd.setParteCaminho(caminhoPai1.length - 1 - i ,caminhoPai1[caminhoPai1.length - 1 - i])
+    }
+    for (var i = 0; i < caminhoPai2.length; i++) {
+      if(novoInd.caminho[i] === -1){
+        if(!this.validarNovaParteCaminho(novoInd.caminho, caminhoPai2[i])){
+          novoInd.setParteCaminho(i, caminhoPai2[i])
+        }
+      }
+    }
+  }
+
+  validarNovaParteCaminho(caminhoNovo, novaParteCaminho){
+    for (var i = 0; i < caminhoNovo.length; i++) {
+      if(caminhoNovo[i] == novaParteCaminho){
+        return true
+      }
+    }
+    return false
+  }
 
 }
 class Populacao {
@@ -44,10 +103,13 @@ class Populacao {
     return this.individuos
   }
 
+  setIndividuo(posicao, Individuo){
+    this.individuos[posicao] = Individuo
+  }
+
   makeATable() {
     for(var i = 0 ; i < tamanho_populacao ; i++) {
       $('#ind').append('<tr><th scope="row">'+i+'</th><td>'+this.individuos[i].percurso+'</td><td>'+this.individuos[i].custo+'</td></tr>')
-
     }
   }
 }
@@ -69,6 +131,7 @@ class Individuo {
         return 1
       }
     })
+
   }
 
   get custo(){
@@ -92,8 +155,29 @@ class Individuo {
     return this.caminho
   }
 
-  mutate( ) {
-    var i = Math.random()*100 % cidades.length
-    var j = Math.random()*100 % cidades.length
+  setParteCaminho(posicao, alteracao){
+    this.caminho[posicao] = alteracao
+  }
+
+  resetCaminho(){
+    for (var i = 0; i < this.caminho.length; i++) {
+      this.caminho[i] = -1
+    }
+  }
+
+  mutate() {
+    var mutateChance = Math.random()
+    if(mutateChance > fator_de_mutacao){
+      return
+    }
+    var i
+    var j
+    do{
+      i = Math.random()*100 % cidades.length
+      j = Math.random()*100 % cidades.length
+    }while(i == j)
+    var aux = this.caminho[i]
+    this.caminho[i] = this.caminho[j]
+    this.caminho[j] = aux
   }
 }
