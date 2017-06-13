@@ -10,40 +10,40 @@ var pesos = [
 
 var cidades = ['A','B','C','D','E','F']
 
-var tamanho_populacao = cidades.length * 2 - 1
+var tamanho_populacao = cidades.length * 2
 var fator_de_mutacao = 0.05
 var fatorCrossover = 0.9
 
+var menor_de_todos = 999999999999
 $(document).ready(function(){
   // var pop = new Populacao()
   // pop.makeATable()
   var amb = new Ambiente()
-  amb.evoluirPopulacao(500)
+  amb.evoluirPopulacao(8001)
 
 })
 
 class Ambiente {
   constructor() {
     this.pop = new Populacao()
+    this.pop.makeATable('#ind')
   }
 
   evoluirPopulacao(iteracoes){
-    this.pop.makeATable('#ind')
     // console.log("aa")
     for (var i = 0; i < iteracoes; i++) {
       var melhoresIndTorneio = []
       var k = 0
-      for (var j = 0; j < tamanho_populacao / 2 - 1; j++) {
+      for (var j = 0; j < tamanho_populacao / 2; j++) {
         melhoresIndTorneio[j] = this.findBestIndividuo(this.pop.vetor_individuos[k], this.pop.vetor_individuos[k + 1])
-        // console.log("Melhor " + j + " " + melhoresIndTorneio[j].custo)
         k = k + 2
-        // console.log(j + " Torneio")
+        if(melhoresIndTorneio[j].custo < menor_de_todos){
+          menor_de_todos = melhoresIndTorneio[j].custo
+        }
       }
-      this.pop.setIndividuo(0, this.pop.vetor_individuos[tamanho_populacao - 1]);
 
       // Considerar depois que crossover pode não ocorrer
       for (var j = 0; j < melhoresIndTorneio.length; j = j + 2) {
-        console.log(j)
         var crossChance = Math.random()
         if(j === melhoresIndTorneio.length - 1){
           if(melhoresIndTorneio.length % 2 === 1){
@@ -66,6 +66,7 @@ class Ambiente {
     }
 
     this.pop.makeATable('#ind2')
+    console.log(menor_de_todos)
   }
 
   findBestIndividuo (ind1, ind2){
@@ -90,9 +91,29 @@ class Ambiente {
     this.pop.setIndividuo(posicaoPop + 2, novoInd2)
   }
 
+  encontrarMenorFita(caminhoPai1){
+    var size = caminhoPai1.length / 2
+    var menor = 99999999999
+    var melhorFita = caminhoPai1.length
+    for (var i = 0; i < caminhoPai1.length/ 2 ; i++) {
+      var custo = 0
+      for (var j = i; j < i+size-1 ; j++) {
+        custo += pesos[caminhoPai1[j]][caminhoPai1[j+1]]
+      }
+      if(custo < menor){
+        menor = custo
+        //console.log('cust '+custo+' fita = '+(i+size-1))
+        melhorFita = i+size-1
+      }
+    }
+    return melhorFita
+  }
+
   gerarNovoCaminho(novoInd, caminhoPai1, caminhoPai2){
+    var pos = this.encontrarMenorFita(caminhoPai1)
+    //console.log(pos)
     for (var i = 0; i < caminhoPai1.length / 2; i++) {
-      novoInd.setParteCaminho(caminhoPai1.length - 1 - i ,caminhoPai1[caminhoPai1.length - 1 - i])
+      novoInd.setParteCaminho(pos - i ,caminhoPai1[pos - i])
     }
     for (var i = 0; i < caminhoPai2.length; i++) {
       if(novoInd.caminho[i] === -1){
