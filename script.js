@@ -269,7 +269,7 @@ class Individuo {
   get percurso () {
     var out = ''
     for (var i = 0; i < cidades.length; i++) {
-      out = out + ' ' + this.caminho[i]
+      out = out + ' ' + cidades[this.caminho[i]]
     }
     return out
   }
