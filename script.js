@@ -105,6 +105,16 @@ class Ambiente {
   evoluirPopulacao (iteracoes) {
     // console.log("aa")
     for (var i = 0; i < iteracoes; i++) {
+      this.pop.vetorIndividuos.sort(function (a, b) {
+        var j = Math.random() * 100
+        if (j <= 30) {
+          return -1
+        } else if (j <= 60) {
+          return 0
+        } else {
+          return 1
+        }
+      })
       var melhoresIndTorneio = []
       var k = 0
       for (var j = 0; j < tamanhoPopulacao / 2; j++) {
