@@ -24,10 +24,73 @@ $(document).ready(function () {
   amb.evoluirPopulacao(50)
 })
 
+var colorNames = ['rgb(255, 99, 132)', 'rgb(255, 159, 64)', 'rgb(255, 205, 86)', 'rgb(75, 192, 192)', 'rgb(54, 162, 235)', 'rgb(153, 102, 255)']
+var config = {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'Melhor Individuo da Geração',
+      backgroundColor: colorNames[2],
+      borderColor: colorNames[2],
+      data: [
+      ],
+      fill: false
+    }]
+  },
+  options: {
+    responsive: true,
+    title: {
+      display: true,
+      text: 'Chart.js Line Chart'
+    },
+    tooltips: {
+      mode: 'index',
+      intersect: false
+    },
+    hover: {
+      mode: 'nearest',
+      intersect: true
+    },
+    scales: {
+      xAxes: [{
+        display: true,
+        scaleLabel: {
+          display: true,
+          labelString: 'Month'
+        }
+      }],
+      yAxes: [{
+        display: true,
+        scaleLabel: {
+          display: true,
+          labelString: 'Value'
+        }
+      }]
+    }
+  }
+}
+
+var geracao = 0
+
+function addToGraph (populacao) {
+  var element = populacao.vetorIndividuos
+  element.sort(function (a, b) { return a.custo - b.custo })
+  config.data.labels.push(geracao)
+  geracao++
+  config.data.datasets[0].data.push(element[0].custo)
+}
+
 class Ambiente {
   constructor () {
     this.pop = new Populacao()
     this.pop.makeATable('#ind')
+    addToGraph(this.pop)
+  }
+
+  drawChart (divId) {
+    var ctx = $(divId).get(0).getContext('2d')
+    window.myDoughnut = new Chart(ctx, config)
   }
 
   evoluirPopulacao (iteracoes) {
@@ -65,9 +128,11 @@ class Ambiente {
       for (var l = 0; l < tamanhoPopulacao; l++) {
         this.pop.vetorIndividuos[l].mutate()
       }
+      addToGraph(this.pop)
     }
 
     this.pop.makeATable('#ind2')
+    this.drawChart('#chart-area')
     $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' + menorIndividuoHistorico.individuo.percurso + '</td><td>' + menorIndividuoHistorico.individuo.custo + '</td></tr>')
   }
 
@@ -153,7 +218,8 @@ class Populacao {
   }
 
   makeATable (id) {
-    this.individuos.sort(function (a, b) { return a.custo - b.custo })
+    var element = this.vetorIndividuos
+    element.sort(function (a, b) { return a.custo - b.custo })
     var sum = 0
     for (var i = 0; i < tamanhoPopulacao; i++) {
       sum += this.individuos[i].custo
