@@ -31,8 +31,16 @@ var config = {
     labels: [],
     datasets: [{
       label: 'Melhor Individuo da Geração',
-      backgroundColor: colorNames[2],
-      borderColor: colorNames[2],
+      backgroundColor: colorNames[3],
+      borderColor: colorNames[3],
+      data: [
+      ],
+      fill: false
+    },
+    {
+      label: 'Pior Individuo da Geração',
+      backgroundColor: colorNames[0],
+      borderColor: colorNames[0],
       data: [
       ],
       fill: false
@@ -79,6 +87,7 @@ function addToGraph (populacao) {
   config.data.labels.push(geracao)
   geracao++
   config.data.datasets[0].data.push(element[0].custo)
+  config.data.datasets[1].data.push(element[element.length-1].custo)
 }
 
 class Ambiente {
@@ -228,6 +237,7 @@ class Populacao {
     $(id).append('<tr><th scope="row" colspan="2">TOTAL</th><td>' + sum + '</td></tr>')
   }
 }
+
 class Individuo {
   constructor () {
     this.caminho = []
