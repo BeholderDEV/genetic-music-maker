@@ -1,0 +1,31 @@
+{
+  "name": "geneticmemecancer",
+  "version": "1.0.0",
+  "description": "Genetic algorithms in Js",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeholderDEV/GeneticMemeCancer.git"
+  },
+  "standard": {
+    "globals": [
+      "$",
+      "alert"
+    ],
+    "ignore": [
+      "/lib/"
+    ]
+  },
+  "author": "Alisson Steffens",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BeholderDEV/GeneticMemeCancer/issues"
+  },
+  "homepage": "https://github.com/BeholderDEV/GeneticMemeCancer#readme",
+  "devDependencies": {
+    "standard": "^10.0.2"
+  }
+}
