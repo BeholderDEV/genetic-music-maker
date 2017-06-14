@@ -128,19 +128,13 @@ class Ambiente {
       }
 
       // Considerar depois que crossover pode não ocorrer
-      for (var m = 0; m < melhoresIndTorneio.length; m = m + 2) {
-        var crossChance = Math.random()
-        if (m === melhoresIndTorneio.length - 1) {
-          if (melhoresIndTorneio.length % 2 === 1) {
-            this.crossover(melhoresIndTorneio[m], melhoresIndTorneio[m - 1], m)
-            break
-          }
+      for (var m = 0; m < melhoresIndTorneio.length; m++) {
+        if (m % 2 == 0) {
+          this.crossover(melhoresIndTorneio[m], melhoresIndTorneio[m + 1], m * 2)
         }
-        if (crossChance < fatorCrossover) {
-          this.crossover(melhoresIndTorneio[m], melhoresIndTorneio[m + 1], m)
-        } else {
-          this.pop.setIndividuo(m + 1, melhoresIndTorneio[m])
-          this.pop.setIndividuo(m + 2, melhoresIndTorneio[m + 1])
+        if (m === melhoresIndTorneio.length - 1 && melhoresIndTorneio.length % 2 === 1) {
+          this.crossover(melhoresIndTorneio[m], melhoresIndTorneio[m - 1], m * 2)
+          break
         }
       }
 
@@ -172,8 +166,10 @@ class Ambiente {
     novoInd2.resetCaminho()
     this.gerarNovoCaminho(novoInd1, vet1, vet2)
     this.gerarNovoCaminho(novoInd2, vet2, vet1)
-    this.pop.setIndividuo(posicaoPop + 1, novoInd1)
-    this.pop.setIndividuo(posicaoPop + 2, novoInd2)
+    this.pop.setIndividuo(posicaoPop, novoInd1)
+    this.pop.setIndividuo(posicaoPop + 1, novoInd2)
+    this.pop.setIndividuo(posicaoPop + 2, i1)
+    this.pop.setIndividuo(posicaoPop + 3, i2)
   }
 
   encontrarMenorFita (caminhoPai1) {
