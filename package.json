@@ -1,5 +1,5 @@
 {
-  "name": "Genetic Meme Cancer",
+  "name": "geneticmemecancer",
   "version": "1.0.0",
   "description": "Genetic algorithms in Js",
   "main": "script.js",
@@ -27,5 +27,8 @@
   "homepage": "https://github.com/BeholderDEV/GeneticMemeCancer#readme",
   "devDependencies": {
     "standard": "^10.0.2"
+  },
+  "dependencies": {
+    "tone": "^0.10.0"
   }
 }
