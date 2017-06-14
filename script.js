@@ -1,86 +1,83 @@
-//             A    B   C    D   E  F
+// A    B   C    D   E  F
 var pesos = [
-              [-01, 05, 10, 15, 25, 10], // A
-              [ 05,-01, 13, 11, 18, 12], // B
-              [ 10, 13,-01, 06, 14, 02], // C
-              [ 15, 11, 06,-01, 20, 23], // D
-              [ 25, 18, 14, 20,-01, 08],  // E
-              [ 10, 12, 02, 23, 08,-01]  // F
-            ]
+  [-1, 5, 10, 15, 25, 10], // A
+  [5, -1, 13, 11, 18, 12], // B
+  [10, 13, -1, 6, 14, 2], // C
+  [15, 11, 6, -1, 20, 23], // D
+  [25, 18, 14, 20, -1, 8],  // E
+  [10, 12, 2, 23, 8, -1]  // F
+]
 
-var cidades = ['A','B','C','D','E','F']
+var cidades = ['A', 'B', 'C', 'D', 'E', 'F']
 
-var tamanho_populacao = cidades.length * 2
-var fator_de_mutacao = 0.05
+var tamanhoPopulacao = cidades.length * 2
+var fatorDeMutacao = 0.05
 var fatorCrossover = 0.9
 
-var menor_de_todos = 999999999999
-$(document).ready(function(){
+var menorDeTodos = 999999999999
+$(document).ready(function () {
   // var pop = new Populacao()
   // pop.makeATable()
   var amb = new Ambiente()
   amb.evoluirPopulacao(8001)
-
 })
 
 class Ambiente {
-  constructor() {
+  constructor () {
     this.pop = new Populacao()
     this.pop.makeATable('#ind')
   }
 
-  evoluirPopulacao(iteracoes){
+  evoluirPopulacao (iteracoes) {
     // console.log("aa")
     for (var i = 0; i < iteracoes; i++) {
       var melhoresIndTorneio = []
       var k = 0
-      for (var j = 0; j < tamanho_populacao / 2; j++) {
-        melhoresIndTorneio[j] = this.findBestIndividuo(this.pop.vetor_individuos[k], this.pop.vetor_individuos[k + 1])
+      for (var j = 0; j < tamanhoPopulacao / 2; j++) {
+        melhoresIndTorneio[j] = this.findBestIndividuo(this.pop.vetorIndividuos[k], this.pop.vetorIndividuos[k + 1])
         k = k + 2
-        if(melhoresIndTorneio[j].custo < menor_de_todos){
-          menor_de_todos = melhoresIndTorneio[j].custo
+        if (melhoresIndTorneio[j].custo < menorDeTodos) {
+          menorDeTodos = melhoresIndTorneio[j].custo
         }
       }
 
       // Considerar depois que crossover pode não ocorrer
-      for (var j = 0; j < melhoresIndTorneio.length; j = j + 2) {
+      for (var m = 0; m < melhoresIndTorneio.length; m = m + 2) {
         var crossChance = Math.random()
-        if(j === melhoresIndTorneio.length - 1){
-          if(melhoresIndTorneio.length % 2 === 1){
-            this.crossover(melhoresIndTorneio[j], melhoresIndTorneio[j - 1], j)
+        if (m === melhoresIndTorneio.length - 1) {
+          if (melhoresIndTorneio.length % 2 === 1) {
+            this.crossover(melhoresIndTorneio[m], melhoresIndTorneio[m - 1], m)
             break
           }
         }
-        if(crossChance < fatorCrossover){
-          this.crossover(melhoresIndTorneio[j], melhoresIndTorneio[j + 1], j)
-        }else{
-          this.pop.setIndividuo(j + 1, melhoresIndTorneio[j])
-          this.pop.setIndividuo(j + 2, melhoresIndTorneio[j + 1])
+        if (crossChance < fatorCrossover) {
+          this.crossover(melhoresIndTorneio[m], melhoresIndTorneio[m + 1], m)
+        } else {
+          this.pop.setIndividuo(m + 1, melhoresIndTorneio[m])
+          this.pop.setIndividuo(m + 2, melhoresIndTorneio[m + 1])
         }
-
       }
 
-      for (var j = 0; j < tamanho_populacao; j++) {
-        this.pop.vetor_individuos[j].mutate()
+      for (var l = 0; l < tamanhoPopulacao; l++) {
+        this.pop.vetorIndividuos[l].mutate()
       }
     }
 
     this.pop.makeATable('#ind2')
-    console.log(menor_de_todos)
+    console.log(menorDeTodos)
   }
 
-  findBestIndividuo (ind1, ind2){
-    if(ind1.custo < ind2.custo){
+  findBestIndividuo (ind1, ind2) {
+    if (ind1.custo < ind2.custo) {
       return ind1
     }
     return ind2
   }
 
-
-//http://www.theprojectspot.com/tutorial-post/applying-a-genetic-algorithm-to-the-travelling-salesman-problem/5
-  crossover (i1, i2, posicaoPop){
-    var vet1 = i1.vetor_caminho
-    var vet2 = i2.vetor_caminho
+// http://www.theprojectspot.com/tutorial-post/applying-a-genetic-algorithm-to-the-travelling-salesman-problem/5
+  crossover (i1, i2, posicaoPop) {
+    var vet1 = i1.vetorCaminho
+    var vet2 = i2.vetorCaminho
     var novoInd1 = new Individuo()
     var novoInd2 = new Individuo()
     novoInd1.resetCaminho()
@@ -91,141 +88,137 @@ class Ambiente {
     this.pop.setIndividuo(posicaoPop + 2, novoInd2)
   }
 
-  encontrarMenorFita(caminhoPai1){
+  encontrarMenorFita (caminhoPai1) {
     var size = caminhoPai1.length / 2
     var menor = 99999999999
     var melhorFita = caminhoPai1.length
-    for (var i = 0; i < caminhoPai1.length/ 2 ; i++) {
+    for (var i = 0; i < caminhoPai1.length / 2; i++) {
       var custo = 0
-      for (var j = i; j < i+size-1 ; j++) {
-        custo += pesos[caminhoPai1[j]][caminhoPai1[j+1]]
+      for (var j = i; j < i + size - 1; j++) {
+        custo += pesos[caminhoPai1[j]][caminhoPai1[j + 1]]
       }
-      if(custo < menor){
+      if (custo < menor) {
         menor = custo
-        //console.log('cust '+custo+' fita = '+(i+size-1))
-        melhorFita = i+size-1
+        // console.log('cust '+custo+' fita = '+(i+size-1))
+        melhorFita = i + size - 1
       }
     }
     return melhorFita
   }
 
-  gerarNovoCaminho(novoInd, caminhoPai1, caminhoPai2){
+  gerarNovoCaminho (novoInd, caminhoPai1, caminhoPai2) {
     var pos = this.encontrarMenorFita(caminhoPai1)
-    //console.log(pos)
+    // console.log(pos)
     for (var i = 0; i < caminhoPai1.length / 2; i++) {
-      novoInd.setParteCaminho(pos - i ,caminhoPai1[pos - i])
+      novoInd.setParteCaminho(pos - i, caminhoPai1[pos - i])
     }
-    for (var i = 0; i < caminhoPai2.length; i++) {
-      if(novoInd.caminho[i] === -1){
+    for (var k = 0; k < caminhoPai2.length; k++) {
+      if (novoInd.caminho[k] === -1) {
         for (var j = 0; j < caminhoPai2.length; j++) {
-          if(!this.validarNovaParteCaminho(novoInd.caminho, caminhoPai2[j])){
-            novoInd.setParteCaminho(i, caminhoPai2[j])
+          if (!this.validarNovaParteCaminho(novoInd.caminho, caminhoPai2[j])) {
+            novoInd.setParteCaminho(k, caminhoPai2[j])
           }
         }
-
       }
     }
   }
 
-  validarNovaParteCaminho(caminhoNovo, novaParteCaminho){
+  validarNovaParteCaminho (caminhoNovo, novaParteCaminho) {
     for (var i = 0; i < caminhoNovo.length; i++) {
-      if(caminhoNovo[i] === novaParteCaminho){
+      if (caminhoNovo[i] === novaParteCaminho) {
         return true
       }
     }
     return false
   }
-
 }
 class Populacao {
-  constructor() {
+  constructor () {
     this.individuos = []
-    for(var i = 0 ; i < tamanho_populacao ; i++) {
+    for (var i = 0; i < tamanhoPopulacao; i++) {
       this.individuos[i] = new Individuo()
     }
   }
 
-  get vetor_individuos(){
+  get vetorIndividuos () {
     return this.individuos
   }
 
-  setIndividuo(posicao, Individuo){
+  setIndividuo (posicao, Individuo) {
     this.individuos[posicao] = Individuo
   }
 
-  makeATable(id) {
-    this.individuos.sort(function(a, b){return a.custo-b.custo})
+  makeATable (id) {
+    this.individuos.sort(function (a, b) { return a.custo - b.custo })
     var sum = 0
-    for(var i = 0 ; i < tamanho_populacao ; i++) {
+    for (var i = 0; i < tamanhoPopulacao; i++) {
       sum += this.individuos[i].custo
-      $(id).append('<tr><th scope="row">'+i+'</th><td>'+this.individuos[i].percurso+'</td><td>'+this.individuos[i].custo+'</td></tr>')
+      $(id).append('<tr><th scope="row">' + i + '</th><td>' + this.individuos[i].percurso + '</td><td>' + this.individuos[i].custo + '</td></tr>')
     }
-    $(id).append('<tr><th scope="row" colspan="2">TOTAL</th><td>'+sum+'</td></tr>')
+    $(id).append('<tr><th scope="row" colspan="2">TOTAL</th><td>' + sum + '</td></tr>')
   }
 }
 class Individuo {
-  constructor() {
+  constructor () {
     this.caminho = []
 
-    for(var i = 0 ; i < cidades.length ; i++) {
+    for (var i = 0; i < cidades.length; i++) {
       this.caminho[i] = i
     }
-    this.caminho.sort(function(a, b){
-      var j = Math.random()*100
-      if(j <= 30){
+    this.caminho.sort(function (a, b) {
+      var j = Math.random() * 100
+      if (j <= 30) {
         return -1
-      }else if(j <= 60){
+      } else if (j <= 60) {
         return 0
-      }
-      else{
+      } else {
         return 1
       }
     })
-
   }
 
-  get custo(){
+  get custo () {
     var out = 0
-    for(var i = 0 ; i < cidades.length-1 ; i++) {
-      out += pesos[this.caminho[i]][this.caminho[i+1]]
+    for (var i = 0; i < cidades.length - 1; i++) {
+      out += pesos[this.caminho[i]][this.caminho[i + 1]]
     }
-    out += pesos[this.caminho[cidades.length-1]][this.caminho[0]]
+    out += pesos[this.caminho[cidades.length - 1]][this.caminho[0]]
     return out
   }
 
-  get percurso(){
+  get percurso () {
     var out = ''
-    for(var i = 0 ; i < cidades.length ; i++) {
-      out = out +' '+ this.caminho[i]
+    for (var i = 0; i < cidades.length; i++) {
+      out = out + ' ' + this.caminho[i]
     }
     return out
   }
 
-  get vetor_caminho(){
+  get vetorCaminho () {
     return this.caminho
   }
 
-  setParteCaminho(posicao, alteracao){
+  setParteCaminho (posicao, alteracao) {
     this.caminho[posicao] = alteracao
   }
 
-  resetCaminho(){
+  resetCaminho () {
     for (var i = 0; i < this.caminho.length; i++) {
       this.caminho[i] = -1
     }
   }
 
-  mutate() {
+  mutate () {
     var mutateChance = Math.random()
-    if(mutateChance > fator_de_mutacao){
+    if (mutateChance > fatorDeMutacao) {
       return
     }
     var i
     var j
-    do{
-      i = Math.random()*100 % cidades.length
-      j = Math.random()*100 % cidades.length
-    }while(i == j)
+    do {
+      i = Math.random() * 100 % cidades.length
+      j = Math.random() * 100 % cidades.length
+    } while (i === j)
     var aux = this.caminho[i]
     this.caminho[i] = this.caminho[j]
     this.caminho[j] = aux
