@@ -14,7 +14,9 @@ var tamanhoPopulacao = cidades.length * 2
 var fatorDeMutacao = 0.05
 var fatorCrossover = 0.9
 
-var menorDeTodos = 999999999999
+var menorDeTodos = Number.POSITIVE_INFINITY
+var menorIndividuoHistorico = {}
+
 $(document).ready(function () {
   // var pop = new Populacao()
   // pop.makeATable()
@@ -38,6 +40,8 @@ class Ambiente {
         k = k + 2
         if (melhoresIndTorneio[j].custo < menorDeTodos) {
           menorDeTodos = melhoresIndTorneio[j].custo
+          menorIndividuoHistorico.individuo = melhoresIndTorneio[j]
+          menorIndividuoHistorico.geracao = i
         }
       }
 
@@ -64,7 +68,7 @@ class Ambiente {
     }
 
     this.pop.makeATable('#ind2')
-    console.log(menorDeTodos)
+    $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' + menorIndividuoHistorico.individuo.percurso + '</td><td>' + menorIndividuoHistorico.individuo.custo + '</td></tr>')
   }
 
   findBestIndividuo (ind1, ind2) {
@@ -90,7 +94,7 @@ class Ambiente {
 
   encontrarMenorFita (caminhoPai1) {
     var size = caminhoPai1.length / 2
-    var menor = 99999999999
+    var menor = Number.POSITIVE_INFINITY
     var melhorFita = caminhoPai1.length
     for (var i = 0; i < caminhoPai1.length / 2; i++) {
       var custo = 0
