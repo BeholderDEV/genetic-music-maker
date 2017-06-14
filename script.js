@@ -50,7 +50,7 @@ var config = {
     responsive: true,
     title: {
       display: true,
-      text: 'Generations'
+      text: 'Population History'
     },
     tooltips: {
       mode: 'index',
@@ -65,14 +65,14 @@ var config = {
         display: true,
         scaleLabel: {
           display: true,
-          labelString: 'Month'
+          labelString: 'Generation'
         }
       }],
       yAxes: [{
         display: true,
         scaleLabel: {
           display: true,
-          labelString: 'Value'
+          labelString: 'Path Cost'
         }
       }]
     }
