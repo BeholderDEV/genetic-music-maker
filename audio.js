@@ -6,10 +6,7 @@ $(document).ready(function () {
   var mySynth2 = new Synthos()
   mySynth2.setType('sine')
   mySynth2.setBpm(200)
-  for (var index = 0; index < tamanho; index++) {
-    //mySynth2.addFrequency(music[index])
-    mySynth2.addFrequency(individuo.frequencies[index])
-  }
+  mySynth2.setFrequencies(music)
   mySynth2.play()
 })
 
