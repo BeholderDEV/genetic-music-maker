@@ -1,26 +1,25 @@
-var C = 1054.94
-var C1 = 995.73
-var D = 939.85
-var D1 = 887.10
-var E = 837.31
-var F = 790.31
-var F1 = 745.96
-var G = 704.09
-var G1 = 664.57
-var A = 627.27
-var A1 = 592.07
-var B = 558.84
-
 $(document).ready(function () {
-  var music = [F, C, A1, C, F, C, A1, C, F, C, A1, C, F, C, A1, C, F, A1, C, F, A1, G, C]
-  for (var index = 0; index < music.length; index++) {
-    music[index] = music[index] / 2
+  var note = new Note()
+  var tamanho = 4
+  var music = [note.C, note.D, note.E, note.F]
+  var individuo = new Individuo(tamanho)
+  var mySynth2 = new Synthos()
+  mySynth2.setType('sine')
+  mySynth2.setBpm(200)
+  for (var index = 0; index < tamanho; index++) {
+    //mySynth2.addFrequency(music[index])
+    mySynth2.addFrequency(individuo.frequencies[index])
   }
-  var mySynth = new Synthos()
-  mySynth.setType('sine')
-  mySynth.setBpm(200)
-  for (var index = 0; index < music.length; index++) {
-    mySynth.addFrequency(music[index])
-  }
-  mySynth.play()
+  mySynth2.play()
 })
+
+class Individuo {
+  constructor (size) {
+    this.frequencies = []
+    this.note = new Note()
+
+    for (var i = 0; i < size; i++) {
+      this.frequencies[i] = this.note.B + (Math.random() * (this.note.C - this.note.B))
+    }
+  }
+}

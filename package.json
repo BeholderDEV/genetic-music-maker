@@ -30,6 +30,6 @@
   },
   "dependencies": {
     "chart.js": "^2.6.0",
-    "synthos": "^1.0.4"
+    "synthos": "^1.0.5"
   }
 }
