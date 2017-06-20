@@ -2,15 +2,22 @@ var collect = require('collect.js')
 var chart = require('chart.js')
 
 var note = new Note()
-var music = [note.C, note.D, note.E, note.F]
+var music = [note.E, note.E, note.E, note.C]
 var fatorDeMutacao = 0.05
+var mySynth2 = new Synthos()
 $(document).ready(function () {
-  var mySynth2 = new Synthos()
-  mySynth2.setType('sine')
+  mySynth2.setType('square')
   mySynth2.setBpm(200)
   $('#exp_ind').append('<tr><td>' +  collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
   var amb = new Ambiente()
   amb.evoluirPopulacao(75)
+})
+$('#original').on('click', function () {
+  mySynth2.setFrequencies(music)
+  mySynth2.play()
+})
+
+$('#generated').on('click', function () {
   mySynth2.setFrequencies(menorIndividuoHistorico.individuo.frequencies)
   mySynth2.play()
 })
@@ -123,6 +130,7 @@ class Ambiente {
         melhoresIndTorneio[j] = this.findBestIndividuo(this.pop.individuos[k], this.pop.individuos[k + 1])
         k = k + 2
         if (melhoresIndTorneio[j].coincidence < menorDeTodos) {
+          console.log(i + ' - ' + menorDeTodos)
           menorDeTodos = melhoresIndTorneio[j].coincidence
           menorIndividuoHistorico.individuo = melhoresIndTorneio[j]
           menorIndividuoHistorico.geracao = i
@@ -153,8 +161,8 @@ class Ambiente {
   crossover (i1, i2, posicaoPop) {
     var vet1 = i1.frequencies
     var vet2 = i2.frequencies
-    var novoInd1 = new Individuo(4)
-    var novoInd2 = new Individuo(4)
+    var novoInd1 = new Individuo(music.length)
+    var novoInd2 = new Individuo(music.length)
     novoInd1.resetTrack()
     novoInd2.resetTrack()
     this.gerarNovoCaminho(novoInd1, vet1, vet2)
@@ -196,7 +204,7 @@ class Populacao {
   constructor () {
     this.individuos = []
     for (var i = 0; i < tamanhoPopulacao; i++) {
-      this.individuos[i] = new Individuo(4)
+      this.individuos[i] = new Individuo(music.length)
     }
   }
 
