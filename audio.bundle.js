@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var collect = require('collect.js')
-var chart = require('chart.js')
+var Chart = require('chart.js')
 
 var note = new Note()
 var music = [note.E, note.E, note.E, note.C]
@@ -9,7 +9,7 @@ var mySynth2 = new Synthos()
 $(document).ready(function () {
   mySynth2.setType('square')
   mySynth2.setBpm(200)
-  $('#exp_ind').append('<tr><td>' +  collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
+  $('#exp_ind').append('<tr><td>' + collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
   var amb = new Ambiente()
   amb.evoluirPopulacao(75)
 })
@@ -155,7 +155,7 @@ class Ambiente {
 
     this.pop.makeATable('#ind2')
     this.drawChart('#chart-area')
-    $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' +  collect(menorIndividuoHistorico.individuo.frequencies).map(function (item) {
+    $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' + collect(menorIndividuoHistorico.individuo.frequencies).map(function (item) {
       return Math.round(item * 100) / 100
     }).implode(' - ') + '</td><td>' + menorIndividuoHistorico.individuo.coincidence + '</td></tr>')
   }

@@ -1,5 +1,5 @@
 var collect = require('collect.js')
-var chart = require('chart.js')
+var Chart = require('chart.js')
 
 var note = new Note()
 var music = [note.E, note.E, note.E, note.C]
@@ -8,7 +8,7 @@ var mySynth2 = new Synthos()
 $(document).ready(function () {
   mySynth2.setType('square')
   mySynth2.setBpm(200)
-  $('#exp_ind').append('<tr><td>' +  collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
+  $('#exp_ind').append('<tr><td>' + collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
   var amb = new Ambiente()
   amb.evoluirPopulacao(75)
 })
@@ -154,7 +154,7 @@ class Ambiente {
 
     this.pop.makeATable('#ind2')
     this.drawChart('#chart-area')
-    $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' +  collect(menorIndividuoHistorico.individuo.frequencies).map(function (item) {
+    $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' + collect(menorIndividuoHistorico.individuo.frequencies).map(function (item) {
       return Math.round(item * 100) / 100
     }).implode(' - ') + '</td><td>' + menorIndividuoHistorico.individuo.coincidence + '</td></tr>')
   }
