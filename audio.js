@@ -2,15 +2,18 @@ var collect = require('collect.js')
 var Chart = require('chart.js')
 
 var note = new Note()
-var music = [note.E, note.E, note.E, note.C]
+// var music = [note.E, note.E, note.E, note.C]
+// var music = [note.C, note.D, note.E, note.F]
+var music = [note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C]
 var fatorDeMutacao = 0.05
+var worst
 var mySynth2 = new Synthos()
 $(document).ready(function () {
-  mySynth2.setType('square')
+  mySynth2.setType('sine')
   mySynth2.setBpm(200)
   $('#exp_ind').append('<tr><td>' + collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
   var amb = new Ambiente()
-  amb.evoluirPopulacao(75)
+  amb.evoluirPopulacao(500)
 })
 $('#original').on('click', function () {
   mySynth2.setFrequencies(music)
@@ -19,6 +22,11 @@ $('#original').on('click', function () {
 
 $('#generated').on('click', function () {
   mySynth2.setFrequencies(menorIndividuoHistorico.individuo.frequencies)
+  mySynth2.play()
+})
+
+$('#worst').on('click', function () {
+  mySynth2.setFrequencies(worst.frequencies)
   mySynth2.play()
 })
 var tamanhoPopulacao = 16
@@ -96,6 +104,7 @@ class Ambiente {
   constructor () {
     this.pop = new Populacao()
     this.pop.makeATable('#ind')
+    worst = this.pop.individuos[this.pop.individuos.length - 1]
     addToGraph(this.pop)
   }
 
