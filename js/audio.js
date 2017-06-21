@@ -33,6 +33,8 @@ $('#worst').on('click', function () {
   mySynth2.play()
 })
 
+
+
 var tamanhoPopulacao = 16
 
 var menorDeTodos = Number.POSITIVE_INFINITY
@@ -44,7 +46,7 @@ class Ambiente {
     this.pop.makeATable('#ind')
     worst = this.pop.individuos[this.pop.individuos.length - 1]
     gController.addToGraph(this.pop)
-
+    menorIndividuoHistorico.individuo = new Individuo(music.length)
   }
 
   findBestIndividuo (ind1, ind2) {
@@ -56,6 +58,7 @@ class Ambiente {
 
   evoluirPopulacao (iteracoes) {
     for (var i = 0; i < iteracoes; i++) {
+      
       this.pop.individuos.sort(function (a, b) {
         var j = Math.random() * 100
         if (j <= 30) {
@@ -66,15 +69,17 @@ class Ambiente {
           return 1
         }
       })
+
       var melhoresIndTorneio = []
       var k = 0
       for (var j = 0; j < tamanhoPopulacao / 2; j++) {
         melhoresIndTorneio[j] = this.findBestIndividuo(this.pop.individuos[k], this.pop.individuos[k + 1])
         k = k + 2
         if (melhoresIndTorneio[j].coincidence < menorDeTodos) {
-          console.log(i + ' - ' + menorDeTodos)
           menorDeTodos = melhoresIndTorneio[j].coincidence
-          menorIndividuoHistorico.individuo = melhoresIndTorneio[j]
+          console.log(i + ' - ' + menorDeTodos)
+          // menorIndividuoHistorico.individuo = melhoresIndTorneio[j]
+          menorIndividuoHistorico.individuo.copyIndividuo(melhoresIndTorneio[j])
           menorIndividuoHistorico.geracao = i
         }
       }
@@ -88,9 +93,11 @@ class Ambiente {
           break
         }
       }
+
       for (var l = 0; l < tamanhoPopulacao; l++) {
         this.pop.individuos[l].mutate()
       }
+
       gController.addToGraph(this.pop)
     }
 
@@ -100,6 +107,8 @@ class Ambiente {
       return Math.round(item * 100) / 100
     }).implode(' - ') + '</td><td>' + menorIndividuoHistorico.individuo.coincidence + '</td></tr>')
   }
+
+
   crossover (i1, i2, posicaoPop) {
     var vet1 = i1.frequencies
     var vet2 = i2.frequencies
@@ -171,17 +180,30 @@ class Individuo {
       this.frequencies[i] = note.B + (Math.random() * (note.C - note.B))
     }
   }
+
   resetTrack () {
     for (var i = 0; i < this.frequencies.size; i++) {
       this.frequencies[i] = -1
     }
   }
+
+  copyIndividuo (old) {
+    var oldFreq = old.getFrequencies()
+    for (var i = 0; i < oldFreq.length; i++) {
+      this.frequencies[i] = oldFreq[i]
+    }
+  }
+
   get coincidence () {
     var sum = 0
     for (var index = 0; index < this.frequencies.length; index++) {
       sum += Math.abs(music[index] - this.frequencies[index])
     }
     return sum
+  }
+
+  getFrequencies () {
+    return this.frequencies
   }
 
   mutate () {
