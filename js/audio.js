@@ -1,5 +1,6 @@
 var collect = require('collect.js')
 var Chart = require('chart.js')
+var gController = new graphController()
 
 var note = new Note()
 // var music = [note.E, note.E, note.E, note.C]
@@ -8,13 +9,15 @@ var music = [note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, not
 var fatorDeMutacao = 0.05
 var worst
 var mySynth2 = new Synthos()
+
 $(document).ready(function () {
   mySynth2.setType('sine')
   mySynth2.setBpm(200)
   $('#exp_ind').append('<tr><td>' + collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
   var amb = new Ambiente()
-  amb.evoluirPopulacao(500)
+  amb.evoluirPopulacao(30)
 })
+
 $('#original').on('click', function () {
   mySynth2.setFrequencies(music)
   mySynth2.play()
@@ -29,88 +32,19 @@ $('#worst').on('click', function () {
   mySynth2.setFrequencies(worst.frequencies)
   mySynth2.play()
 })
+
 var tamanhoPopulacao = 16
 
 var menorDeTodos = Number.POSITIVE_INFINITY
 var menorIndividuoHistorico = {}
-
-var colorNames = ['rgb(255, 99, 132)', 'rgb(255, 159, 64)', 'rgb(255, 205, 86)', 'rgb(75, 192, 192)', 'rgb(54, 162, 235)', 'rgb(153, 102, 255)']
-var config = {
-  type: 'line',
-  data: {
-    labels: [],
-    datasets: [{
-      label: 'Melhor Individuo da Geração',
-      backgroundColor: colorNames[3],
-      borderColor: colorNames[3],
-      data: [
-      ],
-      fill: false
-    },
-    {
-      label: 'Pior Individuo da Geração',
-      backgroundColor: colorNames[0],
-      borderColor: colorNames[0],
-      data: [
-      ],
-      fill: false
-    }]
-  },
-  options: {
-    responsive: true,
-    title: {
-      display: true,
-      text: 'Population History'
-    },
-    tooltips: {
-      mode: 'index',
-      intersect: false
-    },
-    hover: {
-      mode: 'nearest',
-      intersect: true
-    },
-    scales: {
-      xAxes: [{
-        display: true,
-        scaleLabel: {
-          display: true,
-          labelString: 'Generation'
-        }
-      }],
-      yAxes: [{
-        display: true,
-        scaleLabel: {
-          display: true,
-          labelString: 'Path Cost'
-        }
-      }]
-    }
-  }
-}
-
-var geracao = 0
-
-function addToGraph (populacao) {
-  var element = populacao.individuos
-  element.sort(function (a, b) { return a.coincidence - b.coincidence })
-  config.data.labels.push(geracao)
-  geracao++
-  config.data.datasets[0].data.push(element[0].coincidence)
-  config.data.datasets[1].data.push(element[element.length - 1].coincidence)
-}
 
 class Ambiente {
   constructor () {
     this.pop = new Populacao()
     this.pop.makeATable('#ind')
     worst = this.pop.individuos[this.pop.individuos.length - 1]
-    addToGraph(this.pop)
-  }
+    gController.addToGraph(this.pop)
 
-  drawChart (divId) {
-    var ctx = $(divId).get(0).getContext('2d')
-    window.myDoughnut = new Chart(ctx, config)
   }
 
   findBestIndividuo (ind1, ind2) {
@@ -121,7 +55,6 @@ class Ambiente {
   }
 
   evoluirPopulacao (iteracoes) {
-    // console.log("aa")
     for (var i = 0; i < iteracoes; i++) {
       this.pop.individuos.sort(function (a, b) {
         var j = Math.random() * 100
@@ -158,11 +91,11 @@ class Ambiente {
       for (var l = 0; l < tamanhoPopulacao; l++) {
         this.pop.individuos[l].mutate()
       }
-      addToGraph(this.pop)
+      gController.addToGraph(this.pop)
     }
 
     this.pop.makeATable('#ind2')
-    this.drawChart('#chart-area')
+    gController.drawChart('#chart-area')
     $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' + collect(menorIndividuoHistorico.individuo.frequencies).map(function (item) {
       return Math.round(item * 100) / 100
     }).implode(' - ') + '</td><td>' + menorIndividuoHistorico.individuo.coincidence + '</td></tr>')
