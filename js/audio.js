@@ -1,5 +1,5 @@
 var collect = require('collect.js')
-var Chart = require('chart.js')
+
 var gController = new graphController()
 
 var note = new Note()
