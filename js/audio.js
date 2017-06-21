@@ -39,7 +39,7 @@ $('#worst').on('click', function () {
 
 
 
-var tamanhoPopulacao = music.length * 2 
+var tamanhoPopulacao = music.length * 10
 
 var menorDeTodos = Number.POSITIVE_INFINITY
 var menorIndividuoHistorico = {}
