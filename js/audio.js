@@ -3,6 +3,10 @@ var Chart = require('chart.js')
 var gController = new graphController()
 
 var note = new Note()
+// Vetor com notas (incluir isso na lib Synthos)
+var notes = [note.C, note.E, note.D, note.Cs, note.Ds, note.F, note.Fs, note.G, note.Gs, note.A, note.As, note.B, note.E5, note.Ds5, note.C5,note.B4]
+
+
 // var music = [note.E, note.E, note.E, note.C]
 // var music = [note.C, note.D, note.E, note.F]
 var music = [note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C]
@@ -15,7 +19,7 @@ $(document).ready(function () {
   mySynth2.setBpm(200)
   $('#exp_ind').append('<tr><td>' + collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
   var amb = new Ambiente()
-  amb.evoluirPopulacao(30)
+  amb.evoluirPopulacao(50)
 })
 
 $('#original').on('click', function () {
@@ -35,7 +39,7 @@ $('#worst').on('click', function () {
 
 
 
-var tamanhoPopulacao = 16
+var tamanhoPopulacao = music.length * 2 
 
 var menorDeTodos = Number.POSITIVE_INFINITY
 var menorIndividuoHistorico = {}
@@ -69,6 +73,7 @@ class Ambiente {
           return 1
         }
       })
+
 
       var melhoresIndTorneio = []
       var k = 0
@@ -116,39 +121,43 @@ class Ambiente {
     var novoInd2 = new Individuo(music.length)
     novoInd1.resetTrack()
     novoInd2.resetTrack()
-    this.gerarNovoCaminho(novoInd1, vet1, vet2)
-    this.gerarNovoCaminho(novoInd2, vet2, vet1)
+    this.gerarMusica(novoInd1, vet1, vet2)
+    this.gerarMusica(novoInd2, vet2, vet1)
     this.pop.individuos[posicaoPop] = novoInd1
     this.pop.individuos[posicaoPop + 1] = novoInd2
     this.pop.individuos[posicaoPop + 2] = i1
     this.pop.individuos[posicaoPop + 3] = i2
   }
 
-  gerarNovoCaminho (novoInd, caminhoPai1, caminhoPai2) {
-    var pos = 0
-    // console.log(pos)
-    for (var i = 0; i < caminhoPai1.length / 2; i++) {
-      novoInd.frequencies[pos - i] = caminhoPai1[pos - i]
-    }
-    for (var k = 0; k < caminhoPai2.length; k++) {
-      if (novoInd.frequencies[k] === -1) {
-        for (var j = 0; j < caminhoPai2.length; j++) {
-          if (!this.validarNovaParteCaminho(novoInd.frequencies, caminhoPai2[j])) {
-            novoInd.frequencies[k] = caminhoPai2[j]
-          }
+  gerarMusica (novoInd, freqPai1, freqPai2) {
+      var localCoincidence
+      var vetFreq = []
+      var novaFreq = novoInd.getFrequencies()
+      for (var i = 0; i < freqPai1.length; i++) {
+        localCoincidence = {}
+        localCoincidence.value = Math.abs(music[i] - freqPai1[i])
+        localCoincidence.location = i
+        vetFreq[i] = localCoincidence
+      }
+
+      vetFreq.sort(function (a, b) {
+        if(a.value === b.value){
+          return 0
+        }
+        return (a.value < b.value) ? -1 : 1;
+      })
+
+      for (var i = 0; i < vetFreq.length / 2; i++) {
+        novaFreq[vetFreq[i].location] = freqPai1[vetFreq[i].location]
+      }
+
+      for (var i = 0; i < freqPai2.length; i++) {
+        if(novaFreq[i] === -1){
+          novaFreq[i] = freqPai2[i]
         }
       }
-    }
   }
 
-  validarNovaParteCaminho (caminhoNovo, novaParteCaminho) {
-    for (var i = 0; i < caminhoNovo.length; i++) {
-      if (caminhoNovo[i] === novaParteCaminho) {
-        return true
-      }
-    }
-    return false
-  }
 }
 
 class Populacao {
@@ -177,12 +186,13 @@ class Individuo {
   constructor (size) {
     this.frequencies = []
     for (var i = 0; i < size; i++) {
-      this.frequencies[i] = note.B + (Math.random() * (note.C - note.B))
+      // this.frequencies[i] = note.B + (Math.random() * (note.C - note.B))
+      this.frequencies[i] = notes[Math.floor(Math.random() * 100 % notes.length)]
     }
   }
 
   resetTrack () {
-    for (var i = 0; i < this.frequencies.size; i++) {
+    for (var i = 0; i < this.frequencies.length; i++) {
       this.frequencies[i] = -1
     }
   }
@@ -206,6 +216,7 @@ class Individuo {
     return this.frequencies
   }
 
+
   mutate () {
     var mutateChance = Math.random()
     if (mutateChance > fatorDeMutacao) {
@@ -213,6 +224,7 @@ class Individuo {
     }
     const collection = collect([0, 1, 2, 3])
     var pos = collection.random()
-    this.frequencies[pos] = note.B + (Math.random() * (note.C - note.B))
+    // this.frequencies[pos] = note.B + (Math.random() * (note.C - note.B))
+    this.frequencies[pos] = notes[Math.floor(Math.random() * 100 % notes.length)]
   }
 }
