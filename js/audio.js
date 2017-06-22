@@ -1,46 +1,16 @@
-var collect = require('collect.js')
-
-var gController = new graphController()
-
+var gController = new GraphController()
 var note = new Note()
 // Vetor com notas (incluir isso na lib Synthos)
-var notes = [note.C, note.E, note.D, note.Cs, note.Ds, note.F, note.Fs, note.G, note.Gs, note.A, note.As, note.B, note.E5, note.Ds5, note.C5,note.B4]
+var notes = [note.C, note.E, note.D, note.Cs, note.Ds, note.F, note.Fs, note.G, note.Gs, note.A, note.As, note.B, note.E5, note.Ds5, note.C5, note.B4]
 
+var music = [note.E, note.E, note.E, note.C, note.E, note.G, note.C, note.G, note.E, note.A, note.B, note.As, note.A, note.G, note.E, note.G, note.A, note.F, note.G, note.E, note.C, note.D, note.B, note.C]
+// var music = [note.C, note.D, note.E, note.C]
+//var music = [note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C]
 
-// var music = [note.E, note.E, note.E, note.C]
-// var music = [note.C, note.D, note.E, note.F]
-var music = [note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C]
 var fatorDeMutacao = 0.05
 var worst
-var mySynth2 = new Synthos()
 
-$(document).ready(function () {
-  mySynth2.setType('sine')
-  mySynth2.setBpm(200)
-  $('#exp_ind').append('<tr><td>' + collect(music).implode(' - ') + '</td><td>' + 0 + '</td></tr>')
-  var amb = new Ambiente()
-  amb.evoluirPopulacao(50)
-})
-
-$('#original').on('click', function () {
-  mySynth2.setFrequencies(music)
-  mySynth2.play()
-})
-
-$('#generated').on('click', function () {
-  mySynth2.setFrequencies(menorIndividuoHistorico.individuo.frequencies)
-  mySynth2.play()
-})
-
-$('#worst').on('click', function () {
-  mySynth2.setFrequencies(worst.frequencies)
-  mySynth2.play()
-})
-
-
-
-var tamanhoPopulacao = music.length * 10
-
+var tamanhoPopulacao = music.length * 4
 var menorDeTodos = Number.POSITIVE_INFINITY
 var menorIndividuoHistorico = {}
 
@@ -62,7 +32,6 @@ class Ambiente {
 
   evoluirPopulacao (iteracoes) {
     for (var i = 0; i < iteracoes; i++) {
-      
       this.pop.individuos.sort(function (a, b) {
         var j = Math.random() * 100
         if (j <= 30) {
@@ -74,7 +43,6 @@ class Ambiente {
         }
       })
 
-
       var melhoresIndTorneio = []
       var k = 0
       for (var j = 0; j < tamanhoPopulacao / 2; j++) {
@@ -82,7 +50,6 @@ class Ambiente {
         k = k + 2
         if (melhoresIndTorneio[j].coincidence < menorDeTodos) {
           menorDeTodos = melhoresIndTorneio[j].coincidence
-          console.log(i + ' - ' + menorDeTodos)
           // menorIndividuoHistorico.individuo = melhoresIndTorneio[j]
           menorIndividuoHistorico.individuo.copyIndividuo(melhoresIndTorneio[j])
           menorIndividuoHistorico.geracao = i
@@ -108,11 +75,8 @@ class Ambiente {
 
     this.pop.makeATable('#ind2')
     gController.drawChart('#chart-area')
-    $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' + collect(menorIndividuoHistorico.individuo.frequencies).map(function (item) {
-      return Math.round(item * 100) / 100
-    }).implode(' - ') + '</td><td>' + menorIndividuoHistorico.individuo.coincidence + '</td></tr>')
+    $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' + menorIndividuoHistorico.individuo.toString + '</td><td>' + menorIndividuoHistorico.individuo.coincidence + '</td></tr>')
   }
-
 
   crossover (i1, i2, posicaoPop) {
     var vet1 = i1.frequencies
@@ -130,34 +94,33 @@ class Ambiente {
   }
 
   gerarMusica (novoInd, freqPai1, freqPai2) {
-      var localCoincidence
-      var vetFreq = []
-      var novaFreq = novoInd.getFrequencies()
-      for (var i = 0; i < freqPai1.length; i++) {
-        localCoincidence = {}
-        localCoincidence.value = Math.abs(music[i] - freqPai1[i])
-        localCoincidence.location = i
-        vetFreq[i] = localCoincidence
-      }
+    var localCoincidence
+    var vetFreq = []
+    var novaFreq = novoInd.getFrequencies()
+    for (var i = 0; i < freqPai1.length; i++) {
+      localCoincidence = {}
+      localCoincidence.value = Math.abs(music[i] - freqPai1[i])
+      localCoincidence.location = i
+      vetFreq[i] = localCoincidence
+    }
 
-      vetFreq.sort(function (a, b) {
-        if(a.value === b.value){
-          return 0
-        }
-        return (a.value < b.value) ? -1 : 1;
-      })
-
-      for (var i = 0; i < vetFreq.length / 2; i++) {
-        novaFreq[vetFreq[i].location] = freqPai1[vetFreq[i].location]
+    vetFreq.sort(function (a, b) {
+      if (a.value === b.value) {
+        return 0
       }
+      return (a.value < b.value) ? -1 : 1
+    })
 
-      for (var i = 0; i < freqPai2.length; i++) {
-        if(novaFreq[i] === -1){
-          novaFreq[i] = freqPai2[i]
-        }
+    for (var i = 0; i < vetFreq.length / 2; i++) {
+      novaFreq[vetFreq[i].location] = freqPai1[vetFreq[i].location]
+    }
+
+    for (var i = 0; i < freqPai2.length; i++) {
+      if (novaFreq[i] === -1) {
+        novaFreq[i] = freqPai2[i]
       }
+    }
   }
-
 }
 
 class Populacao {
@@ -175,9 +138,7 @@ class Populacao {
   makeATable (id) {
     this.individuos.sort(function (a, b) { return a.coincidence - b.coincidence })
     for (var i = 0; i < tamanhoPopulacao; i++) {
-      $(id).append('<tr><th scope="row">' + i + '</th><td>' + collect(this.individuos[i].frequencies).map(function (item) {
-        return Math.round(item * 100) / 100
-      }).implode(' - ') + '</td><td>' + this.individuos[i].coincidence + '</td></tr>')
+      $(id).append('<tr><th scope="row">' + i + '</th><td>' + this.individuos[i].toString + '</td><td>' + this.individuos[i].coincidence + '</td></tr>')
     }
   }
 }
@@ -216,14 +177,23 @@ class Individuo {
     return this.frequencies
   }
 
+  get toString () {
+    var out = ''
+    for (var index = 0; index < this.frequencies.length; index++) {
+      out += this.frequencies[index]
+      if (index !== this.frequencies.length - 1) {
+        out += ', '
+      }
+    }
+    return out
+  }
 
   mutate () {
     var mutateChance = Math.random()
     if (mutateChance > fatorDeMutacao) {
       return
     }
-    const collection = collect([0, 1, 2, 3])
-    var pos = collection.random()
+    var pos = Math.floor(Math.random() * 100 % this.frequencies.length)
     // this.frequencies[pos] = note.B + (Math.random() * (note.C - note.B))
     this.frequencies[pos] = notes[Math.floor(Math.random() * 100 % notes.length)]
   }

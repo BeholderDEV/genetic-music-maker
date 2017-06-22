@@ -2,9 +2,12 @@
   "name": "geneticmemecancer",
   "version": "1.0.1",
   "description": "Genetic algorithms in Js",
-  "main": "script.js",
+  "engines": {
+    "node": "4.5.0"
+  },
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -29,8 +32,13 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
+    "body-parser": "^1.17.2",
     "chart.js": "^2.6.0",
     "collect.js": "^3.0.11",
+    "connect": "^3.6.2",
+    "express": "^4.15.3",
+    "path": "^0.12.7",
+    "serve-static": "^1.12.3",
     "synthos": "^2.0.0"
   }
 }
