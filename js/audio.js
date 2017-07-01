@@ -3,7 +3,9 @@ var note = new Note()
 // Vetor com notas (incluir isso na lib Synthos)
 var notes = [note.C, note.E, note.D, note.Cs, note.Ds, note.F, note.Fs, note.G, note.Gs, note.A, note.As, note.B, note.E5, note.Ds5, note.C5, note.B4]
 
-var music = [note.E, note.E, note.E, note.C, note.E, note.G, note.C, note.G, note.E, note.A, note.B, note.As, note.A, note.G, note.E, note.G, note.A, note.F, note.G, note.E, note.C, note.D, note.B, note.C]
+var music = [note.E, note.E, note.E, note.C, note.E, note.G, note.C, note.G, note.E, note.A, note.B, note.As, note.A, note.G, note.E, note.G, note.A, note.F, note.G, note.E, note.C, note.D, note.D, note.C]
+var dr = [0.1, 0.1, 0.1, 0.3, 0.4, 0.5, 0.6, 0.1, 0.1, 0.1, 0.2, 0.3, 0.2, 0.2, 0.5, 0.1, 0.1, 0.1, 0.1, 0.2, 0.2, 0.1, 0.2, 0.2]
+//       [0.1, 0.2, 0.8, 0.1, 0.4, 0.6, 0.4, 0.9, 0.1, 0.4, 0.1, 0.1, 0.2, 0.6, 0.5, 0.1, 0.1, 0.4, 0.7, 0.2, 0.2, 0.3, 0.2, 0.1]
 // var music = [note.C, note.D, note.E, note.C]
 //var music = [note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C]
 
@@ -79,45 +81,58 @@ class Ambiente {
   }
 
   crossover (i1, i2, posicaoPop) {
-    var vet1 = i1.frequencies
-    var vet2 = i2.frequencies
     var novoInd1 = new Individuo(music.length)
     var novoInd2 = new Individuo(music.length)
     novoInd1.resetTrack()
     novoInd2.resetTrack()
-    this.gerarMusica(novoInd1, vet1, vet2)
-    this.gerarMusica(novoInd2, vet2, vet1)
+    this.gerarMusica(novoInd1, i1, i2)
+    this.gerarMusica(novoInd2, i2, i1)
     this.pop.individuos[posicaoPop] = novoInd1
     this.pop.individuos[posicaoPop + 1] = novoInd2
     this.pop.individuos[posicaoPop + 2] = i1
     this.pop.individuos[posicaoPop + 3] = i2
   }
 
-  gerarMusica (novoInd, freqPai1, freqPai2) {
+  gerarMusica (novoInd, pai1, pai2) {
     var localCoincidence
-    var vetFreq = []
-    var novaFreq = novoInd.getFrequencies()
-    for (var i = 0; i < freqPai1.length; i++) {
+    var vetMusic = []
+    for (var i = 0; i < pai1.frequencies.length; i++) {
       localCoincidence = {}
-      localCoincidence.value = Math.abs(music[i] - freqPai1[i])
+      localCoincidence.value = Math.abs(music[i] - pai1.frequencies[i]) + Math.abs(dr[i] - pai1.durations[i])
       localCoincidence.location = i
-      vetFreq[i] = localCoincidence
+      vetMusic[i] = localCoincidence
     }
 
-    vetFreq.sort(function (a, b) {
+    vetMusic.sort(function (a, b) {
       if (a.value === b.value) {
         return 0
       }
       return (a.value < b.value) ? -1 : 1
     })
 
-    for (var i = 0; i < vetFreq.length / 2; i++) {
-      novaFreq[vetFreq[i].location] = freqPai1[vetFreq[i].location]
+    for (var i = 0; i < vetMusic.length / 2; i++) {
+      novoInd.frequencies[vetMusic[i].location] = pai1.frequencies[vetMusic[i].location]
+      if(pai1.durations[vetMusic[i].location] > dr[vetMusic[i].location]){
+        novoInd.durations[vetMusic[i].location] = (pai1.durations[vetMusic[i].location] - 0.1)
+      }else if(pai1.durations[vetMusic[i].location] < dr[vetMusic[i].location]){
+        novoInd.durations[vetMusic[i].location] = (pai1.durations[vetMusic[i].location] + 0.1)
+      }else{
+        novoInd.durations[vetMusic[i].location] = pai1.durations[vetMusic[i].location]
+      }
+      novoInd.durations[vetMusic[i].location] = parseFloat(novoInd.durations[vetMusic[i].location]).toFixed(1)
     }
 
-    for (var i = 0; i < freqPai2.length; i++) {
-      if (novaFreq[i] === -1) {
-        novaFreq[i] = freqPai2[i]
+    for (var i = 0; i < pai2.frequencies.length; i++) {
+      if (novoInd.frequencies[i] === -1) {
+        novoInd.frequencies[i] = pai2.frequencies[i]
+        if(pai2.durations[i] > dr[i]){
+          novoInd.durations[i] = (pai2.durations[i] - 0.1)
+        }else if(pai2.durations[i] < dr[i]){
+          novoInd.durations[i] = (pai2.durations[i] + 0.1)
+        }else{
+          novoInd.durations[i] = pai2.durations[i]
+        }
+        novoInd.durations[i] = parseFloat(novoInd.durations[i]).toFixed(1)
       }
     }
   }
@@ -146,29 +161,34 @@ class Populacao {
 class Individuo {
   constructor (size) {
     this.frequencies = []
+    this.durations = []
     for (var i = 0; i < size; i++) {
-      // this.frequencies[i] = note.B + (Math.random() * (note.C - note.B))
       this.frequencies[i] = notes[Math.floor(Math.random() * 100 % notes.length)]
+      this.durations[i] = Math.floor(Math.random() * 10) / 10
+      if(this.durations[i] === 0){
+        this.durations[i] = 0.1
+      }
     }
   }
 
   resetTrack () {
     for (var i = 0; i < this.frequencies.length; i++) {
       this.frequencies[i] = -1
+      this.durations[i] = -1
     }
   }
 
   copyIndividuo (old) {
-    var oldFreq = old.getFrequencies()
-    for (var i = 0; i < oldFreq.length; i++) {
-      this.frequencies[i] = oldFreq[i]
+    for (var i = 0; i < old.frequencies.length; i++) {
+      this.frequencies[i] = old.frequencies[i]
+      this.durations[i] = old.durations[i]
     }
   }
 
   get coincidence () {
     var sum = 0
     for (var index = 0; index < this.frequencies.length; index++) {
-      sum += Math.abs(music[index] - this.frequencies[index])
+      sum += Math.abs(music[index] - this.frequencies[index]) + Math.abs(dr[index] - this.durations[index]) 
     }
     return sum
   }
@@ -196,5 +216,9 @@ class Individuo {
     var pos = Math.floor(Math.random() * 100 % this.frequencies.length)
     // this.frequencies[pos] = note.B + (Math.random() * (note.C - note.B))
     this.frequencies[pos] = notes[Math.floor(Math.random() * 100 % notes.length)]
+    this.durations[pos] = Math.floor(Math.random() * 10) / 10
+    if(this.durations[pos] === 0){
+        this.durations[pos] = 0.1
+      }
   }
 }
