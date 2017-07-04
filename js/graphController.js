@@ -50,7 +50,7 @@ class GraphController {
             display: true,
             scaleLabel: {
               display: true,
-              labelString: 'Path Cost'
+              labelString: 'Coincidence'
             }
           }]
         }
@@ -60,7 +60,7 @@ class GraphController {
 
   addToGraph (populacao) {
     var element = populacao.individuos
-    element.sort(function (a, b) { return a.coincidence - b.coincidence })
+    element.sort(function (a, b) { return b.coincidence - a.coincidence })
     this.config.data.labels.push(this.geracao)
     this.geracao++
     this.config.data.datasets[0].data.push(element[0].coincidence)

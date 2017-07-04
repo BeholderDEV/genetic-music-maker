@@ -1,3 +1,8 @@
+var maiorDiferencaFrequenciaPossivel = 363.073
+var maiorDiferencaoDuracaoPossivel = 1.0
+var pesoFrequencia = 0.8
+var pesoDuracao = 0.2
+
 var gController = new GraphController()
 var note = new Note()
 // Vetor com notas (incluir isso na lib Synthos)
@@ -5,7 +10,6 @@ var notes = [note.C, note.E, note.D, note.Cs, note.Ds, note.F, note.Fs, note.G, 
 
 var music = [note.E, note.E, note.E, note.C, note.E, note.G, note.C, note.G, note.E, note.A, note.B, note.As, note.A, note.G, note.E, note.G, note.A, note.F, note.G, note.E, note.C, note.D, note.D, note.C]
 var dr = [0.1, 0.1, 0.1, 0.3, 0.4, 0.5, 0.6, 0.1, 0.1, 0.1, 0.2, 0.3, 0.2, 0.2, 0.5, 0.1, 0.1, 0.1, 0.1, 0.2, 0.2, 0.1, 0.2, 0.2]
-//       [0.1, 0.2, 0.8, 0.1, 0.4, 0.6, 0.4, 0.9, 0.1, 0.4, 0.1, 0.1, 0.2, 0.6, 0.5, 0.1, 0.1, 0.4, 0.7, 0.2, 0.2, 0.3, 0.2, 0.1]
 // var music = [note.C, note.D, note.E, note.C]
 //var music = [note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C, note.C]
 
@@ -13,8 +17,20 @@ var fatorDeMutacao = 0.05
 var worst
 
 var tamanhoPopulacao = music.length * 4
-var menorDeTodos = Number.POSITIVE_INFINITY
-var menorIndividuoHistorico = {}
+var maiorDeTodos = Number.NEGATIVE_INFINITY
+var maiorIndividuoHistorico = {}
+
+  function round(num, decimals) {
+    var multiplier = Math.pow(10, decimals);
+    if (typeof(num) != "number") {
+      return null;
+    }
+    if (decimals > 0) {
+      return Math.round(num * multiplier) / multiplier;
+    } else {
+      return Math.round(num);
+    }
+  }
 
 class Ambiente {
   constructor () {
@@ -22,11 +38,11 @@ class Ambiente {
     this.pop.makeATable('#ind')
     worst = this.pop.individuos[this.pop.individuos.length - 1]
     gController.addToGraph(this.pop)
-    menorIndividuoHistorico.individuo = new Individuo(music.length)
+    maiorIndividuoHistorico.individuo = new Individuo(music.length)
   }
 
   findBestIndividuo (ind1, ind2) {
-    if (ind1.coincidence < ind2.coincidence) {
+    if (ind1.coincidence > ind2.coincidence) {
       return ind1
     }
     return ind2
@@ -50,11 +66,10 @@ class Ambiente {
       for (var j = 0; j < tamanhoPopulacao / 2; j++) {
         melhoresIndTorneio[j] = this.findBestIndividuo(this.pop.individuos[k], this.pop.individuos[k + 1])
         k = k + 2
-        if (melhoresIndTorneio[j].coincidence < menorDeTodos) {
-          menorDeTodos = melhoresIndTorneio[j].coincidence
-          // menorIndividuoHistorico.individuo = melhoresIndTorneio[j]
-          menorIndividuoHistorico.individuo.copyIndividuo(melhoresIndTorneio[j])
-          menorIndividuoHistorico.geracao = i
+        if (melhoresIndTorneio[j].coincidence > maiorDeTodos) {
+          maiorDeTodos = melhoresIndTorneio[j].coincidence
+          maiorIndividuoHistorico.individuo.copyIndividuo(melhoresIndTorneio[j])
+          maiorIndividuoHistorico.geracao = i
         }
       }
 
@@ -75,9 +90,17 @@ class Ambiente {
       gController.addToGraph(this.pop)
     }
 
+    for (var i = 0; i < tamanhoPopulacao; i++) {
+      if(this.pop.individuos[i].coincidence > maiorDeTodos){
+          maiorDeTodos = this.pop.individuos[i].coincidence
+          maiorIndividuoHistorico.individuo.copyIndividuo(this.pop.individuos[i])
+          maiorIndividuoHistorico.geracao = iteracoes - 1
+      }
+    }
+
     this.pop.makeATable('#ind2')
     gController.drawChart('#chart-area')
-    $('#melhor_ind').append('<tr><th scope="row">' + menorIndividuoHistorico.geracao + '</th><td>' + menorIndividuoHistorico.individuo.toString + '</td><td>' + menorIndividuoHistorico.individuo.coincidence + '</td></tr>')
+    $('#melhor_ind').append('<tr><th scope="row">' + maiorIndividuoHistorico.geracao + '</th><td>' + maiorIndividuoHistorico.individuo.toString + '</td><td>' + maiorIndividuoHistorico.individuo.coincidence + '%' + '</td></tr>')
   }
 
   crossover (i1, i2, posicaoPop) {
@@ -98,7 +121,7 @@ class Ambiente {
     var vetMusic = []
     for (var i = 0; i < pai1.frequencies.length; i++) {
       localCoincidence = {}
-      localCoincidence.value = Math.abs(music[i] - pai1.frequencies[i]) + Math.abs(dr[i] - pai1.durations[i])
+      localCoincidence.value = (Math.abs(music[i] - pai1.frequencies[i]) / maiorDiferencaFrequenciaPossivel) * pesoFrequencia + (Math.abs(dr[i] - pai1.durations[i]) / maiorDiferencaoDuracaoPossivel) * pesoDuracao
       localCoincidence.location = i
       vetMusic[i] = localCoincidence
     }
@@ -133,19 +156,7 @@ class Ambiente {
     }else{
       novoInd.durations[pos] = paiInd.durations[pos]
     }
-    novoInd.durations[pos] = this.round(novoInd.durations[pos], 1)
-  }
-
-  round(num, decimals) {
-    var multiplier = Math.pow(10, decimals);
-    if (typeof(num) != "number") {
-      return null;
-    }
-    if (decimals > 0) {
-      return Math.round(num * multiplier) / multiplier;
-    } else {
-      return Math.round(num);
-    }
+    novoInd.durations[pos] = round(novoInd.durations[pos], 1)
   }
 
 }
@@ -165,9 +176,9 @@ class Populacao {
   }
 
   makeATable (id) {
-    this.individuos.sort(function (a, b) { return a.coincidence - b.coincidence })
+    this.individuos.sort(function (a, b) { return b.coincidence - a.coincidence })
     for (var i = 0; i < tamanhoPopulacao; i++) {
-      $(id).append('<tr><th scope="row">' + i + '</th><td>' + this.individuos[i].toString + '</td><td>' + this.individuos[i].coincidence + '</td></tr>')
+      $(id).append('<tr><th scope="row">' + i + '</th><td>' + this.individuos[i].toString + '</td><td>' + this.individuos[i].coincidence + '%' + '</td></tr>')
     }
   }
 }
@@ -199,12 +210,13 @@ class Individuo {
     }
   }
 
+  // Lembrar de atualizar conforme as notas da biblioteca Synthos
   get coincidence () {
     var sum = 0
     for (var index = 0; index < this.frequencies.length; index++) {
-      sum += Math.abs(music[index] - this.frequencies[index]) + Math.abs(dr[index] - this.durations[index]) 
+      sum += (Math.abs(music[index] - this.frequencies[index]) / maiorDiferencaFrequenciaPossivel) * pesoFrequencia + (Math.abs(dr[index] - this.durations[index]) / maiorDiferencaoDuracaoPossivel) * pesoDuracao
     }
-    return sum
+    return round(100 - sum / this.frequencies.length * 100, 2)
   }
 
   getFrequencies () {
@@ -228,7 +240,6 @@ class Individuo {
       return
     }
     var pos = Math.floor(Math.random() * 100 % this.frequencies.length)
-    // this.frequencies[pos] = note.B + (Math.random() * (note.C - note.B))
     this.frequencies[pos] = notes[Math.floor(Math.random() * 100 % notes.length)]
     this.durations[pos] = Math.floor(Math.random() * 10) / 10
     if(this.durations[pos] === 0){
