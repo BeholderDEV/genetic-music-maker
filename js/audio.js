@@ -112,31 +112,45 @@ class Ambiente {
 
     for (var i = 0; i < vetMusic.length / 2; i++) {
       novoInd.frequencies[vetMusic[i].location] = pai1.frequencies[vetMusic[i].location]
-      if(pai1.durations[vetMusic[i].location] > dr[vetMusic[i].location]){
-        novoInd.durations[vetMusic[i].location] = (pai1.durations[vetMusic[i].location] - 0.1)
-      }else if(pai1.durations[vetMusic[i].location] < dr[vetMusic[i].location]){
-        novoInd.durations[vetMusic[i].location] = (pai1.durations[vetMusic[i].location] + 0.1)
-      }else{
-        novoInd.durations[vetMusic[i].location] = pai1.durations[vetMusic[i].location]
-      }
-      novoInd.durations[vetMusic[i].location] = parseFloat(novoInd.durations[vetMusic[i].location]).toFixed(1)
+      this.definirNovoTempo(novoInd, pai1, vetMusic[i].location)
     }
 
     for (var i = 0; i < pai2.frequencies.length; i++) {
       if (novoInd.frequencies[i] === -1) {
         novoInd.frequencies[i] = pai2.frequencies[i]
-        if(pai2.durations[i] > dr[i]){
-          novoInd.durations[i] = (pai2.durations[i] - 0.1)
-        }else if(pai2.durations[i] < dr[i]){
-          novoInd.durations[i] = (pai2.durations[i] + 0.1)
-        }else{
-          novoInd.durations[i] = pai2.durations[i]
-        }
-        novoInd.durations[i] = parseFloat(novoInd.durations[i]).toFixed(1)
+        this.definirNovoTempo(novoInd, pai2, i)
       }
     }
   }
+
+
+
+  definirNovoTempo (novoInd, paiInd, pos){
+    if(paiInd.durations[pos] > dr[pos]){
+      novoInd.durations[pos] = paiInd.durations[pos] - 0.1
+    }else if(paiInd.durations[pos] < dr[pos]){
+      novoInd.durations[pos] = paiInd.durations[pos] + 0.1
+    }else{
+      novoInd.durations[pos] = paiInd.durations[pos]
+    }
+    novoInd.durations[pos] = this.round(novoInd.durations[pos], 1)
+  }
+
+  round(num, decimals) {
+    var multiplier = Math.pow(10, decimals);
+    if (typeof(num) != "number") {
+      return null;
+    }
+    if (decimals > 0) {
+      return Math.round(num * multiplier) / multiplier;
+    } else {
+      return Math.round(num);
+    }
+  }
+
 }
+
+
 
 class Populacao {
   constructor () {

@@ -39,6 +39,6 @@
     "express": "^4.15.3",
     "path": "^0.12.7",
     "serve-static": "^1.12.3",
-    "synthos": "^2.0.0"
+    "synthos": "^2.1.0"
   }
 }
