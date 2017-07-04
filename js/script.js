@@ -23,10 +23,10 @@
   })
 
   $('#generated').on('click', function () {
-    mySynth2.setFrequencies(menorIndividuoHistorico.individuo.frequencies)
-    mySynth2.setDurations(menorIndividuoHistorico.individuo.durations)
-    console.log(menorIndividuoHistorico.individuo.frequencies)
-    console.log('Gerado ' + menorIndividuoHistorico.individuo.durations)
+    mySynth2.setFrequencies(maiorIndividuoHistorico.individuo.frequencies)
+    mySynth2.setDurations(maiorIndividuoHistorico.individuo.durations)
+    console.log(maiorIndividuoHistorico.individuo.frequencies)
+    console.log('Gerado ' + maiorIndividuoHistorico.individuo.durations)
     console.log('Original ' + dr)
     mySynth2.play()
   })
