@@ -67,6 +67,13 @@ class GraphController {
     this.config.data.datasets[1].data.push(element[element.length - 1].coincidence)
   }
 
+  clearGraph(){
+    this.geracao = 0
+    this.config.data.labels = []
+    this.config.data.datasets[0].data = []
+    this.config.data.datasets[1].data = []
+  }
+
   drawChart (divId) {
     var ctx = $(divId).get(0).getContext('2d')
     window.myDoughnut = new Chart(ctx, this.config)

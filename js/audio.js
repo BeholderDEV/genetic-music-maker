@@ -1,5 +1,5 @@
 var maiorDiferencaFrequenciaPossivel = 363.073
-var maiorDiferencaoDuracaoPossivel = 1.0
+var maiorDiferencaoDuracaoPossivel = 0.9
 var pesoFrequencia = 0.8
 var pesoDuracao = 0.2
 
@@ -16,8 +16,8 @@ var dr = [0.1, 0.1, 0.1, 0.3, 0.4, 0.5, 0.6, 0.1, 0.1, 0.1, 0.2, 0.3, 0.2, 0.2, 
 var fatorDeMutacao = 0.05
 var worst
 
-var tamanhoPopulacao = music.length * 4
-var maiorDeTodos = Number.NEGATIVE_INFINITY
+var tamanhoPopulacao
+var maiorDeTodos
 var maiorIndividuoHistorico = {}
 
   function round(num, decimals) {
@@ -34,6 +34,8 @@ var maiorIndividuoHistorico = {}
 
 class Ambiente {
   constructor () {
+    tamanhoPopulacao = music.length * 4
+    maiorDeTodos = Number.NEGATIVE_INFINITY
     this.pop = new Populacao()
     this.pop.makeATable('#ind')
     worst = this.pop.individuos[this.pop.individuos.length - 1]
@@ -86,7 +88,6 @@ class Ambiente {
       for (var l = 0; l < tamanhoPopulacao; l++) {
         this.pop.individuos[l].mutate()
       }
-
       gController.addToGraph(this.pop)
     }
 
@@ -244,6 +245,6 @@ class Individuo {
     this.durations[pos] = Math.floor(Math.random() * 10) / 10
     if(this.durations[pos] === 0){
         this.durations[pos] = 0.1
-      }
+    }
   }
 }
